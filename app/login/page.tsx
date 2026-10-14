@@ -18,37 +18,61 @@ export default function LoginPage() {
     setLoading(true);
     setErrorMessage('');
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-
-    // Check if Supabase credentials are still placeholder
-    if (!supabaseUrl || supabaseUrl.includes('placeholder')) {
-      // Local dev bypass notice:
-      if (password === 'admin' || password.length >= 6) {
-        // Allow local dev exploration
-        router.push('/dashboard');
-        return;
-      } else {
-        setErrorMessage('Local Dev Notice: Enter password of 6+ characters or configure Supabase credentials in .env.local.');
-        setLoading(false);
-        return;
-      }
-    }
+    const cleanEmail = email.trim().toLowerCase();
+    const isMasterAdmin =
+      cleanEmail === 'blog@nidclinic.com' && password === 'System-8706411@';
 
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      // If matching master clinic admin credentials
+      if (isMasterAdmin) {
+        // Set persistent cookie
+        document.cookie = `nidaa_admin_token=admin_${Date.now()}; path=/; max-age=2592000; SameSite=Lax`;
+        sessionStorage.setItem('nidaa_admin_user', cleanEmail);
+        localStorage.setItem('nidaa_admin_auth', 'true');
 
-      if (error) {
-        setErrorMessage(error.message || 'Invalid email or password.');
-      } else if (data?.user) {
+        // Also attempt Supabase sign in if configured
+        try {
+          const supabase = createClient();
+          await supabase.auth.signInWithPassword({
+            email: cleanEmail,
+            password,
+          });
+        } catch {
+          // ignore Supabase error if not yet set up
+        }
+
         router.push('/dashboard');
         router.refresh();
+        return;
       }
+
+      // Try Supabase auth directly if different user
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (supabaseUrl && !supabaseUrl.includes('placeholder')) {
+        const supabase = createClient();
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password,
+        });
+
+        if (error || !data?.user) {
+          setErrorMessage('Invalid email or password. Please use authorized clinic credentials.');
+          setLoading(false);
+          return;
+        }
+
+        document.cookie = `nidaa_admin_token=admin_${Date.now()}; path=/; max-age=2592000; SameSite=Lax`;
+        sessionStorage.setItem('nidaa_admin_user', cleanEmail);
+        localStorage.setItem('nidaa_admin_auth', 'true');
+
+        router.push('/dashboard');
+        router.refresh();
+        return;
+      }
+
+      setErrorMessage('Invalid email or password. Please use authorized clinic credentials.');
     } catch (err: any) {
-      setErrorMessage(err?.message || 'Unable to connect to authentication server.');
+      setErrorMessage(err?.message || 'Authentication failed. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
@@ -61,97 +85,105 @@ export default function LoginPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'radial-gradient(circle at 50% 30%, #3D0609 0%, #150204 70%, #0A0102 100%)',
+        backgroundColor: '#F9FAFB',
+        backgroundImage: 'radial-gradient(circle at 50% 10%, rgba(186, 24, 30, 0.05) 0%, transparent 60%)',
         padding: '1.5rem',
-        position: 'relative',
-        overflow: 'hidden',
+        fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* Background radial glow */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-20%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '700px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(196, 22, 28, 0.25) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* Signature Medical Crimson Card (Matching Reference Image) */}
       <div
         style={{
           width: '100%',
-          maxWidth: '460px',
-          background: 'linear-gradient(145deg, #BA181E 0%, #8E0E14 45%, #6A0A0E 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.22)',
+          maxWidth: '440px',
+          background: '#FFFFFF',
+          border: '1px solid #E5E7EB',
           borderRadius: '24px',
-          padding: '3rem 2.5rem',
-          boxShadow: '0 30px 70px rgba(0, 0, 0, 0.6), 0 0 50px rgba(196, 22, 28, 0.3)',
-          position: 'relative',
-          zIndex: 1,
+          padding: '2.75rem 2.25rem',
+          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
         }}
       >
-        {/* Top Pill Badge */}
-        <div
-          style={{
-            display: 'inline-block',
-            fontSize: '0.6875rem',
-            fontWeight: 700,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: '#FFFFFF',
-            background: 'rgba(255, 255, 255, 0.16)',
-            border: '1px solid rgba(255, 255, 255, 0.28)',
-            padding: '0.35rem 0.9rem',
-            borderRadius: '9999px',
-            marginBottom: '1.25rem',
-          }}
-        >
-          Evidence-Based Care &bull; CMS Admin
+        {/* Brand Header */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '56px',
+              height: '56px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, #BA181E 0%, #8E0E14 100%)',
+              color: '#FFFFFF',
+              boxShadow: '0 8px 16px rgba(186, 24, 30, 0.25)',
+              marginBottom: '1.25rem',
+            }}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          </div>
+
+          <div
+            style={{
+              display: 'inline-block',
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: '#BA181E',
+              background: 'rgba(186, 24, 30, 0.08)',
+              border: '1px solid rgba(186, 24, 30, 0.18)',
+              padding: '0.3rem 0.8rem',
+              borderRadius: '9999px',
+              marginBottom: '0.75rem',
+            }}
+          >
+            NiDAA Clinic • Blog CMS
+          </div>
+
+          <h1
+            style={{
+              fontSize: '1.75rem',
+              fontWeight: 800,
+              color: '#111827',
+              letterSpacing: '-0.02em',
+              margin: '0 0 0.5rem 0',
+            }}
+          >
+            Administrator Login
+          </h1>
+
+          <p
+            style={{
+              fontSize: '0.9rem',
+              color: '#6B7280',
+              lineHeight: 1.5,
+              margin: 0,
+            }}
+          >
+            Enter authorized clinic credentials to access the medical content dashboard.
+          </p>
         </div>
-
-        <h1
-          style={{
-            fontSize: '1.85rem',
-            fontWeight: 800,
-            letterSpacing: '-0.02em',
-            margin: '0 0 0.5rem 0',
-            color: '#FFFFFF',
-            lineHeight: 1.2,
-          }}
-        >
-          NiDAA Clinic: Blog CMS
-        </h1>
-
-        <p
-          style={{
-            fontSize: '0.925rem',
-            lineHeight: 1.5,
-            color: 'rgba(255, 255, 255, 0.88)',
-            margin: '0 0 2rem 0',
-          }}
-        >
-          Secure medical content administration portal for authorized clinic directors and clinical specialists.
-        </p>
 
         {errorMessage && (
           <div
             style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.35)',
-              border: '1px solid rgba(255, 255, 255, 0.25)',
-              color: '#FFD4D7',
+              backgroundColor: '#FEF2F2',
+              border: '1px solid #FECACA',
+              color: '#991B1B',
               padding: '0.75rem 1rem',
               borderRadius: '12px',
-              fontSize: '0.825rem',
+              fontSize: '0.85rem',
               marginBottom: '1.5rem',
               lineHeight: 1.4,
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
             }}
           >
-            ⚠️ {errorMessage}
+            <span>⚠️</span>
+            <span>{errorMessage}</span>
           </div>
         )}
 
@@ -165,21 +197,32 @@ export default function LoginPage() {
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
-                color: 'rgba(255, 255, 255, 0.9)',
-                marginBottom: '0.4rem',
+                color: '#374151',
+                marginBottom: '0.45rem',
               }}
             >
-              Administrator Email
+              Admin Email
             </label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@nidaclinic.com"
+              placeholder="blog@nidclinic.com"
               required
-              className="nidaa-input"
               autoFocus
+              style={{
+                width: '100%',
+                padding: '0.85rem 1rem',
+                background: '#FFFFFF',
+                border: '1px solid #D1D5DB',
+                borderRadius: '12px',
+                color: '#111827',
+                fontSize: '0.925rem',
+                outline: 'none',
+                boxSizing: 'border-box',
+                transition: 'border-color 0.2s',
+              }}
             />
           </div>
 
@@ -192,8 +235,8 @@ export default function LoginPage() {
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
-                color: 'rgba(255, 255, 255, 0.9)',
-                marginBottom: '0.4rem',
+                color: '#374151',
+                marginBottom: '0.45rem',
               }}
             >
               Password
@@ -205,7 +248,18 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
               required
-              className="nidaa-input"
+              style={{
+                width: '100%',
+                padding: '0.85rem 1rem',
+                background: '#FFFFFF',
+                border: '1px solid #D1D5DB',
+                borderRadius: '12px',
+                color: '#111827',
+                fontSize: '0.925rem',
+                outline: 'none',
+                boxSizing: 'border-box',
+                transition: 'border-color 0.2s',
+              }}
             />
           </div>
 
@@ -213,29 +267,29 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             style={{
-              backgroundColor: '#FFFFFF',
-              color: '#8E0E14',
+              background: 'linear-gradient(135deg, #BA181E 0%, #8E0E14 100%)',
+              color: '#FFFFFF',
               fontWeight: 800,
               fontSize: '0.95rem',
               borderRadius: '9999px',
               padding: '0.85rem 1.5rem',
               border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+              boxShadow: '0 8px 20px rgba(186, 24, 30, 0.25)',
               marginTop: '0.5rem',
-              transition: 'all 0.2s ease',
+              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
             }}
           >
-            {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
+            {loading ? 'Verifying Credentials...' : 'Sign In to Dashboard →'}
           </button>
         </form>
 
-        <div style={{ marginTop: '2rem', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '1.25rem' }}>
+        <div style={{ marginTop: '2rem', textAlign: 'center', borderTop: '1px solid #F3F4F6', paddingTop: '1.25rem' }}>
           <a
             href={process.env.NEXT_PUBLIC_MAIN_SITE_URL || 'https://nidaclinic.com'}
             style={{
-              color: 'rgba(255, 255, 255, 0.8)',
-              fontSize: '0.825rem',
+              color: '#6B7280',
+              fontSize: '0.85rem',
               textDecoration: 'none',
               fontWeight: 600,
             }}

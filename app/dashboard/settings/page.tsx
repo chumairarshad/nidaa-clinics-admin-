@@ -7,7 +7,7 @@ export default function SettingsPage() {
   const [supabaseConnected, setSupabaseConnected] = useState<boolean | null>(null);
   const [pingStatus, setPingStatus] = useState<string | null>(null);
   const [pinging, setPinging] = useState(false);
-  const [userEmail, setUserEmail] = useState<string>('admin@nidaclinic.com');
+  const [userEmail, setUserEmail] = useState<string>('blog@nidclinic.com');
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not configured';
   const mainSiteUrl = process.env.NEXT_PUBLIC_MAIN_SITE_URL || 'https://nidaclinic.com';
@@ -62,79 +62,106 @@ export default function SettingsPage() {
   };
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '1000px', margin: '0 auto', color: '#1F2937' }}>
       {/* Page Header */}
       <div style={{ marginBottom: '2.5rem' }}>
-        <span className="nidaa-pill" style={{ marginBottom: '0.4rem' }}>
+        <span
+          style={{
+            display: 'inline-block',
+            fontSize: '0.72rem',
+            fontWeight: 800,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: '#BA181E',
+            background: 'rgba(186, 24, 30, 0.08)',
+            border: '1px solid rgba(186, 24, 30, 0.2)',
+            padding: '0.35rem 0.9rem',
+            borderRadius: '9999px',
+            marginBottom: '0.6rem',
+          }}
+        >
           System &amp; Architecture
         </span>
-        <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em', margin: 0 }}>
+        <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.02em', margin: 0 }}>
           CMS &amp; Deployment Settings
         </h1>
-        <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+        <p style={{ color: '#4B5563', fontSize: '0.95rem', marginTop: '0.35rem' }}>
           Verify database connections, cross-project cache revalidation webhooks, and independent deployment parameters.
         </p>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         {/* Supabase Connection Status Card */}
-        <div className="nidaa-card" style={{ padding: '2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
-              Supabase Shared Database
-            </h2>
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #E5E7EB',
+            borderRadius: '16px',
+            padding: '2rem',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+            <div>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#111827', margin: 0 }}>
+                Supabase Shared Database
+              </h2>
+              <p style={{ color: '#6B7280', fontSize: '0.85rem', margin: '0.2rem 0 0 0' }}>
+                PostgreSQL database storing published medical articles, categories, and author metadata.
+              </p>
+            </div>
             <span
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.4rem',
+                gap: '0.45rem',
                 fontSize: '0.8rem',
                 fontWeight: 700,
-                color: supabaseConnected ? '#34D399' : '#FBBF24',
-                background: supabaseConnected ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                border: `1px solid ${supabaseConnected ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
-                padding: '0.35rem 0.85rem',
+                color: supabaseConnected ? '#059669' : '#D97706',
+                background: supabaseConnected ? '#ECFDF5' : '#FFFBEB',
+                border: `1px solid ${supabaseConnected ? '#A7F3D0' : '#FDE68A'}`,
+                padding: '0.4rem 0.9rem',
                 borderRadius: '9999px',
               }}
             >
-              <span>●</span>
+              <span style={{ fontSize: '0.7rem' }}>●</span>
               <span>{supabaseConnected === true ? 'Connected' : supabaseConnected === false ? 'Awaiting Env Keys' : 'Checking...'}</span>
             </span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-            <div style={{ background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: '10px' }}>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
+            <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '1.1rem', borderRadius: '12px' }}>
+              <div style={{ fontSize: '0.72rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
                 Supabase URL (NEXT_PUBLIC_SUPABASE_URL)
               </div>
-              <div style={{ fontSize: '0.875rem', fontFamily: 'monospace', color: '#FFFFFF', wordBreak: 'break-all' }}>
+              <div style={{ fontSize: '0.875rem', fontFamily: 'monospace', color: '#1F2937', wordBreak: 'break-all', fontWeight: 600 }}>
                 {supabaseUrl}
               </div>
             </div>
 
-            <div style={{ background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: '10px' }}>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
+            <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '1.1rem', borderRadius: '12px' }}>
+              <div style={{ fontSize: '0.72rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
                 Storage Bucket
               </div>
-              <div style={{ fontSize: '0.875rem', fontFamily: 'monospace', color: '#6EE7B7' }}>
+              <div style={{ fontSize: '0.875rem', fontFamily: 'monospace', color: '#BA181E', fontWeight: 600 }}>
                 blog-media (Public read, Authenticated write)
               </div>
             </div>
 
-            <div style={{ background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: '10px' }}>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
+            <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '1.1rem', borderRadius: '12px' }}>
+              <div style={{ fontSize: '0.72rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
                 Active Admin User
               </div>
-              <div style={{ fontSize: '0.875rem', color: '#FFFFFF' }}>
+              <div style={{ fontSize: '0.875rem', color: '#111827', fontWeight: 600 }}>
                 👤 {userEmail}
               </div>
             </div>
 
-            <div style={{ background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: '10px' }}>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
+            <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '1.1rem', borderRadius: '12px' }}>
+              <div style={{ fontSize: '0.72rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
                 Security &amp; Authorization
               </div>
-              <div style={{ fontSize: '0.875rem', color: '#6EE7B7' }}>
+              <div style={{ fontSize: '0.875rem', color: '#059669', fontWeight: 600 }}>
                 🛡️ Row Level Security (RLS) Active
               </div>
             </div>
@@ -142,45 +169,65 @@ export default function SettingsPage() {
         </div>
 
         {/* Cross-Project Cache Invalidation Settings */}
-        <div className="nidaa-card" style={{ padding: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '0.75rem' }}>
-            🔄 Cross-Project Instant Cache Invalidation
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #E5E7EB',
+            borderRadius: '16px',
+            padding: '2rem',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          }}
+        >
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#111827', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>🔄</span> Cross-Project Instant Cache Invalidation
           </h2>
-          <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.875rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+          <p style={{ color: '#4B5563', fontSize: '0.875rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
             When articles are published, edited, or deleted from this admin dashboard, a secure webhook is triggered
-            to instantly bust the Next.js cache on the main NiDAA Clinic website without needing a code redeploy.
+            to instantly bust the Next.js cache on the main NiDAA Clinic website without needing a manual code redeploy.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.78rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.4rem' }}>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.4rem' }}>
                 Target Public Website URL
               </label>
               <input
                 type="text"
-                className="nidaa-input"
                 readOnly
                 value={mainSiteUrl}
-                style={{ fontFamily: 'monospace' }}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  background: '#F9FAFB',
+                  border: '1px solid #D1D5DB',
+                  borderRadius: '10px',
+                  color: '#111827',
+                  fontFamily: 'monospace',
+                  fontSize: '0.9rem',
+                }}
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.78rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.4rem' }}>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.4rem' }}>
                 Server-Side Secret Status
               </label>
               <div
                 style={{
-                  padding: '0.75rem 1rem',
-                  background: 'rgba(0,0,0,0.35)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  borderRadius: '12px',
-                  color: '#6EE7B7',
-                  fontSize: '0.85rem',
+                  padding: '0.85rem 1rem',
+                  background: '#ECFDF5',
+                  border: '1px solid #A7F3D0',
+                  borderRadius: '10px',
+                  color: '#065F46',
+                  fontSize: '0.875rem',
                   fontFamily: 'monospace',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
                 }}
               >
-                🔒 Secured via server-only REVALIDATION_SECRET (Never exposed to browser)
+                <span>🔒</span> Secured via server-only REVALIDATION_SECRET (Never exposed to browser)
               </div>
             </div>
           </div>
@@ -189,7 +236,17 @@ export default function SettingsPage() {
             <button
               onClick={testRevalidation}
               disabled={pinging}
-              className="nidaa-btn-primary"
+              style={{
+                background: 'linear-gradient(135deg, #BA181E 0%, #8E0E14 100%)',
+                color: '#FFFFFF',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '9999px',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                cursor: pinging ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 14px rgba(186, 24, 30, 0.25)',
+              }}
             >
               {pinging ? 'Pinging Main Website...' : '⚡ Test Cache Revalidation Webhook'}
             </button>
@@ -200,11 +257,12 @@ export default function SettingsPage() {
               style={{
                 marginTop: '1.25rem',
                 padding: '0.85rem 1.25rem',
-                borderRadius: '8px',
-                background: 'rgba(0,0,0,0.4)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                fontSize: '0.85rem',
-                color: '#FFFFFF',
+                borderRadius: '10px',
+                background: pingStatus.startsWith('✅') ? '#ECFDF5' : '#FFFBEB',
+                border: `1px solid ${pingStatus.startsWith('✅') ? '#A7F3D0' : '#FDE68A'}`,
+                fontSize: '0.875rem',
+                color: pingStatus.startsWith('✅') ? '#065F46' : '#92400E',
+                fontWeight: 600,
               }}
             >
               {pingStatus}
@@ -213,26 +271,34 @@ export default function SettingsPage() {
         </div>
 
         {/* Public Endpoints Card */}
-        <div className="nidaa-card" style={{ padding: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '1rem' }}>
-            🌐 Production Public Endpoints
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #E5E7EB',
+            borderRadius: '16px',
+            padding: '2rem',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          }}
+        >
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#111827', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>🌐</span> Production Public Endpoints
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.9rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <span style={{ color: 'rgba(255,255,255,0.7)' }}>Public Blog Directory:</span>
-              <a href="https://nidaclinic.com/blog" target="_blank" rel="noopener noreferrer" style={{ color: '#FF8F94' }}>
-                https://nidaclinic.com/blog
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0', borderBottom: '1px solid #F3F4F6' }}>
+              <span style={{ color: '#4B5563', fontWeight: 600 }}>Public Blog Directory:</span>
+              <a href="https://nidaclinic.com/blog" target="_blank" rel="noopener noreferrer" style={{ color: '#BA181E', fontWeight: 700, textDecoration: 'none' }}>
+                https://nidaclinic.com/blog →
               </a>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              <span style={{ color: 'rgba(255,255,255,0.7)' }}>XML Sitemap for Search Engines:</span>
-              <a href="https://nidaclinic.com/sitemap.xml" target="_blank" rel="noopener noreferrer" style={{ color: '#FF8F94' }}>
-                https://nidaclinic.com/sitemap.xml
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0', borderBottom: '1px solid #F3F4F6' }}>
+              <span style={{ color: '#4B5563', fontWeight: 600 }}>XML Sitemap for Search Engines:</span>
+              <a href="https://nidaclinic.com/sitemap.xml" target="_blank" rel="noopener noreferrer" style={{ color: '#BA181E', fontWeight: 700, textDecoration: 'none' }}>
+                https://nidaclinic.com/sitemap.xml →
               </a>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0' }}>
-              <span style={{ color: 'rgba(255,255,255,0.7)' }}>Standalone CMS Admin:</span>
-              <span style={{ color: '#6EE7B7' }}>https://blog.nidaclinic.com</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0' }}>
+              <span style={{ color: '#4B5563', fontWeight: 600 }}>Standalone CMS Admin:</span>
+              <span style={{ color: '#059669', fontWeight: 700, fontFamily: 'monospace' }}>https://blog.nidaclinic.com</span>
             </div>
           </div>
         </div>

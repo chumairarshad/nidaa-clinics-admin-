@@ -70,6 +70,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleSignOut = async () => {
     try {
+      document.cookie = 'nidaa_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+      sessionStorage.removeItem('nidaa_admin_user');
+      localStorage.removeItem('nidaa_admin_auth');
       const supabase = createClient();
       await supabase.auth.signOut();
     } catch {
