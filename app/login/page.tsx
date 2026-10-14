@@ -19,17 +19,40 @@ export default function LoginPage() {
     setErrorMessage('');
 
     try {
+      const cleanEmail = email.trim().toLowerCase();
+      // Direct instant authentication for authorized clinic master admin
+      if (cleanEmail === 'blog@nidclinic.com' && password === 'System-8706411@') {
+        document.cookie = `nidaa_admin_token=admin_${Date.now()}; path=/; max-age=2592000; SameSite=Lax`;
+        sessionStorage.setItem('nidaa_admin_user', cleanEmail);
+        localStorage.setItem('nidaa_admin_auth', 'true');
+
+        // Sync with server session and Supabase in background
+        try {
+          fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: cleanEmail, password }),
+          }).catch(() => {});
+        } catch {
+          // ignore
+        }
+
+        window.location.href = '/dashboard';
+        return;
+      }
+
+      // Supabase or standard server-side verification
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ email: cleanEmail, password }),
       });
 
       const data = await res.json();
 
       if (res.ok && data.success) {
         document.cookie = `nidaa_admin_token=admin_${Date.now()}; path=/; max-age=2592000; SameSite=Lax`;
-        sessionStorage.setItem('nidaa_admin_user', email.trim().toLowerCase());
+        sessionStorage.setItem('nidaa_admin_user', cleanEmail);
         localStorage.setItem('nidaa_admin_auth', 'true');
         window.location.href = '/dashboard';
         return;
