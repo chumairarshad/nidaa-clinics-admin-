@@ -70,6 +70,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleSignOut = async () => {
     try {
+      await fetch('/api/auth/logout', { method: 'POST' });
       document.cookie = 'nidaa_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
       sessionStorage.removeItem('nidaa_admin_user');
       localStorage.removeItem('nidaa_admin_auth');
@@ -78,8 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     } catch {
       // ignore
     }
-    router.push('/login');
-    router.refresh();
+    window.location.href = '/login';
   };
 
   return (

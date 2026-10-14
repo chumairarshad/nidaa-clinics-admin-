@@ -18,61 +18,26 @@ export default function LoginPage() {
     setLoading(true);
     setErrorMessage('');
 
-    const cleanEmail = email.trim().toLowerCase();
-    const isMasterAdmin =
-      cleanEmail === 'blog@nidclinic.com' && password === 'System-8706411@';
-
     try {
-      // If matching master clinic admin credentials
-      if (isMasterAdmin) {
-        // Set persistent cookie
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         document.cookie = `nidaa_admin_token=admin_${Date.now()}; path=/; max-age=2592000; SameSite=Lax`;
-        sessionStorage.setItem('nidaa_admin_user', cleanEmail);
+        sessionStorage.setItem('nidaa_admin_user', email.trim().toLowerCase());
         localStorage.setItem('nidaa_admin_auth', 'true');
-
-        // Also attempt Supabase sign in if configured
-        try {
-          const supabase = createClient();
-          await supabase.auth.signInWithPassword({
-            email: cleanEmail,
-            password,
-          });
-        } catch {
-          // ignore Supabase error if not yet set up
-        }
-
-        router.push('/dashboard');
-        router.refresh();
+        window.location.href = '/dashboard';
         return;
       }
 
-      // Try Supabase auth directly if different user
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      if (supabaseUrl && !supabaseUrl.includes('placeholder')) {
-        const supabase = createClient();
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password,
-        });
-
-        if (error || !data?.user) {
-          setErrorMessage('Invalid email or password. Please use authorized clinic credentials.');
-          setLoading(false);
-          return;
-        }
-
-        document.cookie = `nidaa_admin_token=admin_${Date.now()}; path=/; max-age=2592000; SameSite=Lax`;
-        sessionStorage.setItem('nidaa_admin_user', cleanEmail);
-        localStorage.setItem('nidaa_admin_auth', 'true');
-
-        router.push('/dashboard');
-        router.refresh();
-        return;
-      }
-
-      setErrorMessage('Invalid email or password. Please use authorized clinic credentials.');
+      setErrorMessage(data.error || 'Invalid email or password. Please use authorized clinic credentials.');
     } catch (err: any) {
-      setErrorMessage(err?.message || 'Authentication failed. Please verify your credentials.');
+      setErrorMessage(err?.message || 'Authentication request failed. Please check network connection.');
     } finally {
       setLoading(false);
     }
