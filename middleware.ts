@@ -1,38 +1,32 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { updateSession } from './lib/supabase/middleware';
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Refresh Supabase session and get security-headers response
-  const { response, user } = await updateSession(request);
-
-  // 2. Check master admin token from cookies
+  // Read admin auth token from cookie
   const adminToken = request.cookies.get('nidaa_admin_token')?.value;
+  const isAuthenticated = Boolean(adminToken && adminToken.trim().length > 0);
 
-  // 3. Check if user is authenticated via master token OR Supabase user
-  const isAuthenticated = Boolean(adminToken || user);
-
-  // 4. Handle Root (/)
+  // 1. Root path (/)
   if (pathname === '/') {
     const url = request.nextUrl.clone();
     url.pathname = isAuthenticated ? '/dashboard' : '/login';
     return NextResponse.redirect(url);
   }
 
-  // 5. If user is on /login
+  // 2. Login path (/login)
   if (pathname === '/login') {
-    // If already authenticated, redirect to /dashboard
+    // If user is already authenticated, redirect to /dashboard
     if (isAuthenticated) {
       const url = request.nextUrl.clone();
       url.pathname = '/dashboard';
       return NextResponse.redirect(url);
     }
-    // Otherwise allow unauthenticated user to view /login
-    return response;
+    // Otherwise allow viewing /login directly
+    return NextResponse.next();
   }
 
-  // 6. Protect /dashboard and all subroutes
+  // 3. Dashboard paths (/dashboard, /dashboard/*)
   if (pathname.startsWith('/dashboard')) {
     // If not authenticated, redirect to /login
     if (!isAuthenticated) {
@@ -41,10 +35,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
     // Authenticated: allow access
-    return response;
+    return NextResponse.next();
   }
 
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
